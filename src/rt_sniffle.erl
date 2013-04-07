@@ -25,15 +25,23 @@
          vm_delete/2
         ]).
 
+-export([
+         hypervisor_register/4,
+         hypervisor_unregister/2,
+         hypervisor_get/2,
+         hypervisor_set/3,
+         hypervisor_set/4,
+         hypervisor_list/1,
+         hypervisor_list/2
+        ]).
+
+-export([cloud_status/1]).
+
 
 node_endpoing(Node) ->
     {ok, IP} = rpc:call(Node, application, get_env, [mdns_server_lib, ip]),
     {ok, Port} = rpc:call(Node, application, get_env, [mdns_server_lib, port]),
     {IP, Port}.
-
-
-
-
 
 call(Node, Msg) ->
     {IP, Port} = node_endpoing(Node),
@@ -127,3 +135,40 @@ vm_list(Node) ->
 
 vm_list(Node, Reqs) ->
     call(Node, {vm, list, Reqs}).
+
+
+
+%%%===================================================================
+%%% Hypervisor Functions
+%%%===================================================================
+
+hypervisor_register(Node, Hypervisor, Host, Port) when
+      is_binary(Hypervisor),
+      is_integer(Port),
+      Port > 0 ->
+    call(Node, {hypervisor, register, Hypervisor, Host, Port}).
+
+hypervisor_unregister(Node, Hypervisor) ->
+    call(Node, {hypervisor, unregister, Hypervisor}).
+
+hypervisor_get(Node, Hypervisor) ->
+    call(Node, {hypervisor, get, Hypervisor}).
+
+hypervisor_set(Node, Hypervisor, Resource, Value) ->
+    call(Node, {hypervisor, set, Hypervisor, Resource, Value}).
+
+hypervisor_set(Node, Hypervisor, Resources) ->
+    call(Node, {hypervisor, set, Hypervisor, Resources}).
+
+hypervisor_list(Node) ->
+    call(Node, {hypervisor, list}).
+
+hypervisor_list(Node, Requirements) ->
+    call(Node, {hypervisor, list, Requirements}).
+
+%%%===================================================================
+%%% Cloud Functions
+%%%===================================================================
+
+cloud_status(Node) ->
+    call(Node, {cloud, status}).
