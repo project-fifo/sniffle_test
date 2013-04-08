@@ -29,7 +29,7 @@ distclean: clean
 	@rm -rf sniffle_test deps
 
 test:
-	./sniffle_test -c $(CONFIG) -v -b none $(shell cd tests/; ls -1 *.erl | sed 's/.erl$$//' | awk '{print "-t " $$1}';)
+	./sniffle_test -c $(CONFIG) $(shell cd tests/; ls -1 *.erl | sed 's/.erl$$//' | awk '{print "-t " $$1}';)
 ##################
 # Dialyzer targets
 ##################

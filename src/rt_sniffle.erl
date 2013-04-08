@@ -1,7 +1,9 @@
 -module(rt_sniffle).
 
 
--export([node_endpoing/1, call/2]).
+-export([node_endpoing/1,
+         call/2,
+         ip_to_int/1]).
 
 
 -export([
