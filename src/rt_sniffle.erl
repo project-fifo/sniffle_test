@@ -37,6 +37,24 @@
 
 -export([cloud_status/1]).
 
+-export([
+         dataset_create/2,
+         dataset_import/2,
+         dataset_delete/2,
+         dataset_get/2,
+         dataset_set/3,
+         dataset_set/4,
+         dataset_list/1,
+         dataset_list/2
+        ]).
+
+-export([
+         img_create/4,
+         img_delete/3,
+         img_get/3,
+         img_list/1,
+         img_list/2
+         ]).
 
 node_endpoing(Node) ->
     {ok, IP} = rpc:call(Node, application, get_env, [mdns_server_lib, ip]),
@@ -172,3 +190,51 @@ hypervisor_list(Node, Requirements) ->
 
 cloud_status(Node) ->
     call(Node, {cloud, status}).
+
+%%%===================================================================
+%%%  DATASET Functions
+%%%===================================================================
+
+dataset_create(Node, Dataset) ->
+    call(Node, {dataset, create, Dataset}).
+
+dataset_import(Node, URL) ->
+    call(Node, {dataset, import, URL}).
+
+dataset_delete(Node, Dataset) ->
+    call(Node, {dataset, delete, Dataset}).
+
+dataset_get(Node, Dataset) ->
+    call(Node, {dataset, get, Dataset}).
+
+dataset_set(Node, Dataset, Attributes) ->
+    call(Node, {dataset, set, Dataset, Attributes}).
+
+dataset_set(Node, Dataset, Attribute, Value) ->
+    call(Node, {dataset, set, Dataset, Attribute, Value}).
+
+dataset_list(Node) ->
+    call(Node, {dataset, list}).
+
+dataset_list(Node, Reqs) ->
+    call(Node, {dataset, list, Reqs}).
+
+
+%%%===================================================================
+%%%  IMG Functions
+%%%===================================================================
+
+img_create(Node, Img, Idx, Data) ->
+    call(Node, {img, create, Img, Idx, Data}).
+
+img_delete(Node, Img, Idx) ->
+    call(Node, {img, delete, Img, Idx}).
+
+img_get(Node, Img, Idx) ->
+    call(Node, {img, get, Img, Idx}).
+
+img_list(Node) ->
+    call(Node, {img, list}).
+
+img_list(Node, Img) ->
+    call(Node, {img, list, Img}).
