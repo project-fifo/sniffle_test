@@ -1,6 +1,6 @@
 .PHONY: deps
 
-CONFIG = sniffle_test
+CONFIG = sniffle
 
 APPS = kernel stdlib sasl erts ssl tools os_mon runtime_tools crypto inets \
 	xmerl webtool eunit syntax_tools compiler hipe mnesia public_key \
