@@ -1,0 +1,1 @@
+run all tests with make all test
