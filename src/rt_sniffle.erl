@@ -56,6 +56,29 @@
          img_list/2
          ]).
 
+-export([
+         package_create/2,
+         package_delete/2,
+         package_get/2,
+         package_set/3,
+         package_set/4,
+         package_list/1,
+         package_list/2
+        ]).
+
+-export([
+         iprange_create/9,
+         iprange_delete/2,
+         iprange_get/2,
+         iprange_release/3,
+         iprange_claim/2,
+         iprange_list/1,
+         iprange_list/2,
+         iprange_set/3,
+         iprange_set/4
+        ]).
+
+
 node_endpoing(Node) ->
     {ok, IP} = rpc:call(Node, application, get_env, [mdns_server_lib, ip]),
     {ok, Port} = rpc:call(Node, application, get_env, [mdns_server_lib, port]),
@@ -238,3 +261,112 @@ img_list(Node) ->
 
 img_list(Node, Img) ->
     call(Node, {img, list, Img}).
+
+
+%%%===================================================================
+%%%  PACKAGE Functions
+%%%===================================================================
+
+package_create(Node, Package) when
+      is_binary(Package) ->
+    call(Node, {package, create, Package}).
+
+package_delete(Node, Package) when
+      is_binary(Package) ->
+    call(Node, {package, delete, Package}).
+
+package_get(Node, Package) when
+      is_binary(Package) ->
+    call(Node, {package, get, Package}).
+
+package_set(Node, Package, Attributes) when
+      is_binary(Package),
+      is_list(Attributes) ->
+    call(Node, {package, set, Package, Attributes}).
+
+package_set(Node, Package, Attribute, Value)  when
+      is_binary(Package) ->
+    call(Node, {package, set, Package, Attribute, Value}).
+
+package_list(Node) ->
+    call(Node, {package, list}).
+
+package_list(Node, Reqs) ->
+    call(Node, {package, list, Reqs}).
+
+%%%===================================================================
+%%%  IPrange Functions
+%%%===================================================================
+
+iprange_create(Node, Iprange, Network, Gateway, Netmask, First, Last, Tag, Vlan) when
+      is_binary(Iprange),
+      is_binary(Tag),
+      is_integer(Network),
+      is_integer(Gateway), Network =:= (Gateway band Netmask),
+      is_integer(Netmask),
+      is_integer(First), Network =:= (First band Netmask),
+      is_integer(Last), Network =:= (Last band Netmask),
+      is_integer(Vlan), Vlan >= 0 ->
+    call(Node, {iprange, create, Iprange,
+          Network, Gateway, Netmask,
+          First, Last,
+          Tag, Vlan});
+
+iprange_create(Node, Iprange, Network, Gateway, Netmask, First, Last, Tag, Vlan) when
+      is_binary(Iprange),
+      is_binary(Tag),
+      is_integer(Vlan), Vlan >= 0->
+    iprange_create(Node, Iprange,
+                   ip_to_int(Network),
+                   ip_to_int(Gateway),
+                   ip_to_int(Netmask),
+                   ip_to_int(First),
+                   ip_to_int(Last),
+                   Tag,
+                   Vlan).
+
+iprange_delete(Node, Iprange) ->
+    call(Node, {iprange, delete, Iprange}).
+
+iprange_get(Node, Iprange) ->
+    call(Node, {iprange, get, Iprange}).
+
+iprange_release(Node, Iprange, Ip) when
+      is_binary(Iprange),
+      is_integer(Ip) ->
+    call(Node, {iprange, release, Iprange, ip_to_int(Ip)});
+
+iprange_release(Node, Iprange, Ip) when
+      is_binary(Iprange) ->
+    iprange_release(Node, Iprange, ip_to_int(Ip)).
+
+iprange_claim(Node, Iprange) ->
+    call(Node, {iprange, claim, Iprange}).
+
+iprange_list(Node) ->
+    call(Node, {iprange, list}).
+
+iprange_list(Node, Reqs) ->
+    call(Node, {iprange, list, Reqs}).
+
+
+iprange_set(Node, Iprange, Attributes) when
+      is_binary(Iprange),
+      is_list(Attributes) ->
+    call(Node, {iprange, set, Iprange, Attributes}).
+
+iprange_set(Node, Iprange, Attribute, Value)  when
+      is_binary(Iprange) ->
+    call(Node, {iprange, set, Iprange, Attribute, Value}).
+
+ip_to_int(IP) when is_integer(IP) ->
+    IP;
+
+ip_to_int(IP) ->
+    [As, Bs, Cs, Ds] = re:split(IP, "\\.", [{return, list}]),
+    {A, _} = string:to_integer(As),
+    {B, _} = string:to_integer(Bs),
+    {C, _} = string:to_integer(Cs),
+    {D, _} = string:to_integer(Ds),
+    <<I:32>> = <<A:8, B:8, C:8, D:8>>,
+    I.

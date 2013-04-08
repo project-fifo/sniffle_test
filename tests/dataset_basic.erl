@@ -41,15 +41,11 @@ full_test(Node) ->
                  rt_sniffle:dataset_get(Node, ?UUID1)),
     create_test(Node, ?UUID2),
     list_test(Node, [?UUID1, ?UUID2]),
-    delete_test(Node, ?UUID2),
+    ?assertEqual(ok, rt_sniffle:dataset_delete(Node, ?UUID1)),
     list_test(Node, [?UUID1]).
 
 create_test(Node, UUID) ->
     ?assertEqual(ok, rt_sniffle:dataset_create(Node, UUID)),
-    ok.
-
-delete_test(Node, UUID) ->
-    ?assertEqual(ok, rt_sniffle:dataset_delete(Node, UUID)),
     ok.
 
 list_test(Node, List) ->
