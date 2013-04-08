@@ -6,3 +6,6 @@
 
 ping_ok(_Server, _Port) ->
     pong.
+
+ping_fail(_Server, _Port) ->
+    {error, connection_failed}.

@@ -19,5 +19,11 @@ confirm() ->
     rt_intercept:add(Node, {libchunter, [{{ping,2}, ping_ok}]}),
     ?assertEqual({ok,{[{<<"hypervisors">>,[?HV]}],
                       []}}, rt_sniffle:cloud_status(Node)),
-
+    rt_intercept:add(Node, {libchunter, [{{ping,2}, ping_fail}]}),
+    ?assertEqual({ok,{[{<<"hypervisors">>,[?HV]}],
+                      [[{<<"category">>,<<"chunter">>},
+                        {<<"element">>,?HV},
+                        {<<"message">>,
+                         <<"Chunter server ", ?HV/binary, " down.">>},
+                        {<<"type">>,<<"critical">>}]]}}, rt_sniffle:cloud_status(Node)),
     pass.
