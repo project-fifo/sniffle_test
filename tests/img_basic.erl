@@ -26,7 +26,11 @@ full_test(Node) ->
     list_test(Node, ?UUID1, [0]),
     ?assertEqual(ok, rt_sniffle:img_create(Node, ?UUID1, 1, <<"blubb">>)),
     list_test(Node, ?UUID1, [0, 1]),
-    ?assertEqual({ok, <<"blubb">>}, rt_sniffle:img_get(Node, ?UUID1, 1)).
+    ?assertEqual({ok, <<"blubb">>}, rt_sniffle:img_get(Node, ?UUID1, 1)),
+    ?assertEqual(ok, rt_sniffle:img_create(Node, ?UUID2, 0, <<"bla">>)),
+    list_test(Node, [?UUID1, ?UUID2]),
+    ?assertEqual(ok, rt_sniffle:img_delete(Node, ?UUID2, 0)),
+    list_test(Node, [?UUID1]).
 
 list_test(Node, List) ->
     {ok, R} = rt_sniffle:img_list(Node),
