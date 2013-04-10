@@ -33,7 +33,7 @@ confirm() ->
                               {error, _} ->
                                   Node
                           end
-                  end, Nodes ++ Nodes ++ Nodes),
+                  end, Nodes ++ Nodes ++ Nodes ++ Nodes ++ Nodes),
     IPsSorted = lists:sort(IPs),
     IPsUnique = lists:usort(IPs),
     lager:info("Ensure there was no ip handed twice.", []),
