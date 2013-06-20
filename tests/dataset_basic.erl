@@ -2,26 +2,22 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -behavior(riak_test).
--export([confirm/0,
-         full_test/1]).
+-export([confirm/0]).
 
 -define(UUID1, <<"TEST1">>).
 -define(UUID2, <<"TEST2">>).
 
+%%
+%% This test runs through creating, modyfing and deleting a dataset
+%%
 confirm() ->
     lager:info("Deploy node to test command line"),
     [Node] = rt:deploy_nodes(1),
     ?assertEqual(ok, rt:wait_until_nodes_ready([Node])),
-    full_test(Node),
-    pass.
 
 
-%%
-%% This test runs through creating, modyfing and deleting a VM
-%%
-full_test(Node) ->
     ?assertEqual({ok, []}, rt_sniffle:dataset_list(Node)),
-    create_test(Node, ?UUID1),
+    ?assertEqual(ok, rt_sniffle:dataset_create(Node, ?UUID1)),
     list_test(Node, [?UUID1]),
     ?assertEqual({ok,[{<<"name">>,?UUID1},
                       {<<"version">>,<<"0.1.0">>}]},
@@ -39,14 +35,18 @@ full_test(Node) ->
                        {<<"name">>,?UUID1},
                        {<<"version">>,<<"0.1.0">>}]},
                  rt_sniffle:dataset_get(Node, ?UUID1)),
-    create_test(Node, ?UUID2),
+    ?assertEqual(ok, rt_sniffle:dataset_create(Node, ?UUID2)),
     list_test(Node, [?UUID1, ?UUID2]),
     ?assertEqual(ok, rt_sniffle:dataset_delete(Node, ?UUID2)),
-    list_test(Node, [?UUID1]).
+    list_test(Node, [?UUID1]),
 
-create_test(Node, UUID) ->
-    ?assertEqual(ok, rt_sniffle:dataset_create(Node, UUID)),
-    ok.
+    %% Test that unknown datasets are not_found.
+    ?assertEqual(not_found, rt_sniffle:dataset_get(Node, ?UUID2)),
+
+    %% No dataset can be created twice
+    ?assertEqual(duplicate, rt_sniffle:dataset_create(Node, ?UUID1)),
+
+    pass.
 
 list_test(Node, List) ->
     {ok, R} = rt_sniffle:dataset_list(Node),

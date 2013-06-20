@@ -43,7 +43,8 @@ full_test(Node) ->
     register_test(Node, ?UUID2),
     list_test(Node, [?UUID1, ?UUID2]),
     unregister_test(Node, ?UUID2),
-    list_test(Node, [?UUID1]).
+    list_test(Node, [?UUID1]),
+    ?assertEqual(not_found, rt_sniffle:vm_get(Node, ?UUID2)).
 
 register_test(Node, UUID) ->
     ?assertEqual(ok, rt_sniffle:vm_register(Node, UUID, ?HV)),

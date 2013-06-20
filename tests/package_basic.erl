@@ -2,8 +2,7 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -behavior(riak_test).
--export([confirm/0,
-         full_test/1]).
+-export([confirm/0]).
 
 -define(Name1, <<"TEST1">>).
 -define(Name2, <<"TEST2">>).
@@ -12,16 +11,11 @@ confirm() ->
     lager:info("Deploy node to test command line"),
     [Node] = rt:deploy_nodes(1),
     ?assertEqual(ok, rt:wait_until_nodes_ready([Node])),
-    full_test(Node),
-    pass.
-
-
-%%
-%% This test runs through creating, modyfing and deleting a VM
-%%
-full_test(Node) ->
     ?assertEqual({ok, []}, rt_sniffle:package_list(Node)),
     {ok, UUID1} = rt_sniffle:package_create(Node, ?Name1),
+
+    ?assertEqual(duplicate, rt_sniffle:package_create(Node, ?Name1)),
+
     list_test(Node, [UUID1]),
     ?assertEqual({ok,[{<<"name">>,?Name1},
                       {<<"uuid">>, UUID1},
@@ -45,7 +39,10 @@ full_test(Node) ->
     {ok, UUID2} = rt_sniffle:package_create(Node, ?Name2),
     list_test(Node, [UUID1, UUID2]),
     ?assertEqual(ok, rt_sniffle:package_delete(Node, UUID2)),
-    list_test(Node, [UUID1]).
+    list_test(Node, [UUID1]),
+    ?assertEqual(not_found, rt_sniffle:package_get(Node, UUID2)),
+    pass.
+
 
 list_test(Node, List) ->
     {ok, R} = rt_sniffle:package_list(Node),

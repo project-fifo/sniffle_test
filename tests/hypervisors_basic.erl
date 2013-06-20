@@ -2,8 +2,7 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -behavior(riak_test).
--export([confirm/0,
-         full_test/1]).
+-export([confirm/0]).
 
 -define(HV1, <<"H1">>).
 -define(HOST1, <<"127.0.0.1">>).
@@ -19,20 +18,13 @@ confirm() ->
     lager:info("Deploy node to test command line"),
     [Node] = rt:deploy_nodes(1),
     ?assertEqual(ok, rt:wait_until_nodes_ready([Node])),
-    full_test(Node),
-    pass.
 
-
-%%
-%% This test runs through creating, modyfing and deleting a VM
-%%
-full_test(Node) ->
     %% We should have no hypervisors registered
     list_test(Node, []),
 
     %% Register the first hypervisor and see if it's listed
     %% and readable
-    register_test(Node, ?HV1, ?HOST1, ?PORT1),
+    ?assertEqual(ok, rt_sniffle:hypervisor_register(Node, ?HV1, ?HOST1, ?PORT1)),
     list_test(Node, [?HV1]),
     ?assertEqual({ok,[{<<"host">>,?HOST1},
                       {<<"name">>,?HV1},
@@ -64,22 +56,16 @@ full_test(Node) ->
 
     %% Register a second node and check if it's listable then
     %% delete it again and check if it's done.
-    register_test(Node, ?HV2, ?HOST2, ?PORT2),
+    ?assertEqual(ok, rt_sniffle:hypervisor_register(Node, ?HV2, ?HOST2, ?PORT2)),
+
     list_test(Node, [?HV1, ?HV2]),
 
-    unregister_test(Node, ?HV2),
+    ?assertEqual(ok, rt_sniffle:hypervisor_unregister(Node, ?HV2)),
     list_test(Node, [?HV1]),
-    ok.
 
+    ?assertEqual(not_found, rt_sniffle:hypervisor_get(Node, ?HV2)),
 
-register_test(Node, UUID, Host, Port) ->
-    ?assertEqual(ok, rt_sniffle:hypervisor_register(Node, UUID, Host, Port)),
-    ok.
-
-unregister_test(Node, UUID) ->
-    ?assertEqual(ok, rt_sniffle:hypervisor_unregister(Node, UUID)),
-    ok.
-
+    pass.
 
 list_test(Node, List) ->
     {ok, R} = rt_sniffle:hypervisor_list(Node),

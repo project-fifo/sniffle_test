@@ -2,24 +2,19 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -behavior(riak_test).
--export([confirm/0,
-         full_test/1]).
+-export([confirm/0]).
 
 -define(UUID1, <<"TEST1">>).
 -define(UUID2, <<"TEST2">>).
+
+%%
+%% This test runs through creating, modyfing and deleting a VM
+%%
 
 confirm() ->
     lager:info("Deploy node to test command line"),
     [Node] = rt:deploy_nodes(1),
     ?assertEqual(ok, rt:wait_until_nodes_ready([Node])),
-    full_test(Node),
-    pass.
-
-
-%%
-%% This test runs through creating, modyfing and deleting a VM
-%%
-full_test(Node) ->
     ?assertEqual({ok, []}, rt_sniffle:img_list(Node)),
     ?assertEqual(ok, rt_sniffle:img_create(Node, ?UUID1, 0, <<"bla">>)),
     list_test(Node, [?UUID1]),
@@ -30,7 +25,9 @@ full_test(Node) ->
     ?assertEqual(ok, rt_sniffle:img_create(Node, ?UUID2, 0, <<"bla">>)),
     list_test(Node, [?UUID1, ?UUID2]),
     ?assertEqual(ok, rt_sniffle:img_delete(Node, ?UUID2, 0)),
-    list_test(Node, [?UUID1]).
+    list_test(Node, [?UUID1]),
+    ?assertEqual(not_found, rt_sniffle:img_get(Node, ?UUID2, 0)),
+    pass.
 
 list_test(Node, List) ->
     {ok, R} = rt_sniffle:img_list(Node),
