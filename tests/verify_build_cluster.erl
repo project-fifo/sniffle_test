@@ -35,7 +35,7 @@ confirm() ->
     lager:info("Deploying 4 nodes"),
     %% handoff_concurrency needs to be raised to make the leave operation faster.
     %% most clusters go up to 10, but this one is one louder, isn't it?
-    [Node1, Node2, Node3, Node4] = Nodes = rt:deploy_nodes(4),
+    [Node1, Node2, Node3, Node4] = Nodes = rt:deploy_nodes(4, [{riak_core, [{handoff_concurrency, 64}]}]),
 
     %% Ensure each node owns 100% of it's own ring
     lager:info("Ensure each nodes 100% of it's own ring"),
@@ -84,17 +84,17 @@ confirm() ->
     % leave 1, 2, and 3
     lager:info("leaving Node 1"),
     rt:leave(Node1),
-    ?assertEqual(ok, rt:wait_until_unpingable(Node1)),
+    ?assertEqual(ok, rt:wait_until_unpingable(Node1, 720)),
     wait_and_validate([Node2, Node3, Node4]),
 
     lager:info("leaving Node 2"),
     rt:leave(Node2),
-    ?assertEqual(ok, rt:wait_until_unpingable(Node2)),
+    ?assertEqual(ok, rt:wait_until_unpingable(Node2, 720)),
     wait_and_validate([Node3, Node4]),
 
     lager:info("leaving Node 3"),
     rt:leave(Node3),
-    ?assertEqual(ok, rt:wait_until_unpingable(Node3)),
+    ?assertEqual(ok, rt:wait_until_unpingable(Node3, 720)),
 
     % verify 4
     wait_and_validate([Node4]),

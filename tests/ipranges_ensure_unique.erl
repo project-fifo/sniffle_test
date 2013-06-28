@@ -31,11 +31,12 @@ confirm() ->
                               {ok, {_, IP, _, _}} ->
                                   IP;
                               {error, _} ->
-                                  Node
+                                  ok
                           end
                   end, Nodes ++ Nodes ++ Nodes ++ Nodes ++ Nodes),
-    IPsSorted = lists:sort(IPs),
-    IPsUnique = lists:usort(IPs),
+    IPs1 = [IP || IP <- IPs, is_integer(IP)],
+    IPsSorted = lists:sort(IPs1),
+    IPsUnique = lists:usort(IPs1),
     lager:info("Ensure there was no ip handed twice.", []),
     ?assertEqual(IPsSorted, IPsUnique),
     pass.
