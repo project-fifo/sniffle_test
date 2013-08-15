@@ -30,13 +30,15 @@
 
 confirm() ->
     %% Bring up a 3-node cluster for the test
-    Nodes = build_cluster(3),
-    [Node1, Node2, Node3] = Nodes,
+    [Node1, Node2, Node3] = Nodes = rt:deploy_nodes(3, [{riak_core, [{handoff_concurrency, 128}]}]),
+    rt:join(Node2, Node1),
+    rt:join(Node3, Node1),
 
+    wait_and_validate([Node1, Node2, Node3]),
     %% Have node2 leave
     lager:info("Have ~p leave", [Node2]),
     leave(Node2),
-    ?assertEqual(ok, wait_until_unpingable(Node2)),
+    ?assertEqual(ok, rt:wait_until_unpingable(Node2, 720)),
 
     %% Verify node2 no longer owns partitions, all node believe it invalid
     lager:info("Verify ~p no longer owns partitions and all nodes believe "
@@ -48,7 +50,7 @@ confirm() ->
     %% Have node1 remove node3
     lager:info("Have ~p remove ~p", [Node1, Node3]),
     remove(Node1, Node3),
-    ?assertEqual(ok, wait_until_unpingable(Node3)),
+    ?assertEqual(ok, rt:wait_until_unpingable(Node3, 720)),
 
     %% Verify node3 no longer owns partitions, all node believe it invalid
     lager:info("Verify ~p no longer owns partitions, and all nodes believe "
@@ -57,3 +59,13 @@ confirm() ->
     rt:wait_until_nodes_agree_about_ownership(Remaining2),
     [?assertEqual(invalid, status_of_according_to(Node3, Node)) || Node <- Remaining2],
     pass.
+
+wait_and_validate(Nodes) -> wait_and_validate(Nodes, Nodes).
+wait_and_validate(RingNodes, UpNodes) ->
+    lager:info("Wait until all nodes are ready and there are no pending changes"),
+    ?assertEqual(ok, rt:wait_until_nodes_ready(UpNodes)),
+    ?assertEqual(ok, rt:wait_until_all_members(UpNodes)),
+    ?assertEqual(ok, rt:wait_until_no_pending_changes(UpNodes)),
+    lager:info("Ensure each node owns a portion of the ring"),
+    [rt:wait_until_owners_according_to(Node, RingNodes) || Node <- UpNodes],
+    [rt:wait_for_service(Node, rt:config(rc_services, [riak_kv])) || Node <- UpNodes].

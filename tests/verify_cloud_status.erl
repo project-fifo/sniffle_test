@@ -14,9 +14,11 @@
 confirm() ->
     [Node] = rt:deploy_nodes(1),
     ?assertEqual(ok, rt:wait_until_nodes_ready([Node])),
+    ?assertEqual(ok, rt:wait_until_no_pending_changes([Node])),
     ?assertEqual(ok, rt_sniffle:hypervisor_register(Node, ?HV, ?HOST, ?PORT)),
     ?assertEqual({ok,[?HV]}, rt_sniffle:hypervisor_list(Node)),
     rt_intercept:add(Node, {libchunter, [{{ping,2}, ping_ok}]}),
+
     ?assertEqual({ok,{[{<<"hypervisors">>,[?HV]}],
                       []}}, rt_sniffle:cloud_status(Node)),
     rt_intercept:add(Node, {libchunter, [{{ping,2}, ping_fail}]}),
