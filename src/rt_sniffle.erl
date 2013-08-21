@@ -69,6 +69,16 @@
         ]).
 
 -export([
+         network_create/2,
+         network_delete/2,
+         network_get/2,
+         network_add_iprange/3,
+         network_remove_iprange/3,
+         network_list/1,
+         network_list/2
+         ]).
+
+-export([
          iprange_create/9,
          iprange_delete/2,
          iprange_get/2,
@@ -294,6 +304,28 @@ package_list(Node) ->
 
 package_list(Node, Reqs) ->
     call(Node, {package, list, Reqs}).
+
+network_create(Node, Name) ->
+    call(Node, {network, create, Name}).
+
+network_delete(Node, Network) ->
+    call(Node, {network, delete, Network}).
+
+network_get(Node, Network) ->
+    call(Node, {network, get, Network}).
+
+network_add_iprange(Node, Network, IPRange) ->
+    call(Node, {network, add_iprange, Network, IPRange}).
+
+network_remove_iprange(Node, Network, IPRange) ->
+    call(Node, {network, remove_iprange, Network, IPRange}).
+
+network_list(Node) ->
+    call(Node, {network, list}).
+
+network_list(Node, Requirements) ->
+    call(Node, {network, list, Requirements}).
+
 
 %%%===================================================================
 %%%  IPrange Functions
