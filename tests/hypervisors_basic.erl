@@ -27,8 +27,8 @@ confirm() ->
     ?assertEqual(ok, rt_sniffle:hypervisor_register(Node, ?HV1, ?HOST1, ?PORT1)),
     list_test(Node, [?HV1]),
     ?assertEqual({ok,[{<<"host">>,?HOST1},
-                      {<<"name">>,?HV1},
                       {<<"port">>,?PORT1},
+                      {<<"uuid">>,?HV1},
                       {<<"version">>,<<"0.1.0">>}]}
                  ,rt_sniffle:hypervisor_get(Node, ?HV1)),
 
@@ -36,8 +36,8 @@ confirm() ->
     ?assertEqual(ok, rt_sniffle:hypervisor_set(Node, ?HV1, <<"key">>, 1)),
     ?assertEqual({ok,[{<<"host">>,?HOST1},
                       {<<"key">>, 1},
-                      {<<"name">>,?HV1},
                       {<<"port">>,?PORT1},
+                      {<<"uuid">>,?HV1},
                       {<<"version">>,<<"0.1.0">>}]}
                  ,rt_sniffle:hypervisor_get(Node, ?HV1)),
 
@@ -49,8 +49,8 @@ confirm() ->
                       {<<"key">>,2},
                       {<<"key1">>,1},
                       {<<"key2">>,2},
-                      {<<"name">>,<<"H1">>},
                       {<<"port">>,4200},
+                      {<<"uuid">>,<<"H1">>},
                       {<<"version">>,<<"0.1.0">>}]}
                  ,rt_sniffle:hypervisor_get(Node, ?HV1)),
 
