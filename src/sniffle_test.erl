@@ -40,7 +40,7 @@ cli_options() ->
  {dir,                $d, "dir",      string,     "run all tests in the specified directory"},
  {verbose,            $v, "verbose",  undefined,  "verbose output"},
  {outdir,             $o, "outdir",   string,     "output directory"},
- {backend,            $b, "backend",  atom,       "backend to test [memory | bitcask | eleveldb]"},
+ {backend,            $b, "backend",  atom,       "backend to test [hanoidb | bitcask | eleveldb]"},
  {upgrade_version,    $u, "upgrade",  atom,       "which version to upgrade from [ previous | legacy ]"},
  {report,             $r, "report",   string,     "you're reporting an official test run, provide platform info (e.g. ubuntu-1204-64)\nUse 'config' if you want to pull from ~/.riak_test.config"}
 ].
