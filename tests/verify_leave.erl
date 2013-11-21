@@ -30,7 +30,8 @@
 
 confirm() ->
     %% Bring up a 3-node cluster for the test
-    [Node1, Node2, Node3] = Nodes = rt:deploy_nodes(3, [{riak_core, [{handoff_concurrency, 128}]}]),
+    %[Node1, Node2, Node3] = Nodes = rt:deploy_nodes(3, [{riak_core, [{handoff_concurrency, 128}]}]),
+    [Node1, Node2, Node3] = Nodes = rt:deploy_nodes(3),
     rt:join(Node2, Node1),
     rt:join(Node3, Node1),
 
