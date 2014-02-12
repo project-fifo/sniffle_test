@@ -30,7 +30,8 @@ confirm() ->
 
     rt_intercept:add(Node, {libchunter, [{{ping,2}, ping_ok}]}),
     ?assertEqual({ok,{[{<<"hypervisors">>, [?HV1, ?HV2]},
-                       {<<"r">>, 42}],
+                       {<<"r">>, 42},
+                       {<<"storage">>,<<"internal">>}],
                       []}}, rt_sniffle:cloud_status(Node)),
 
     rt_intercept:add(Node, {libchunter, [{{ping,2}, ping_fail}]}),
