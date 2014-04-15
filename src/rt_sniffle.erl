@@ -92,9 +92,8 @@
 
 
 node_endpoing(Node) ->
-    {ok, IP} = rpc:call(Node, application, get_env, [mdns_server_lib, ip]),
-    {ok, Port} = rpc:call(Node, application, get_env, [mdns_server_lib, port]),
-    {IP, Port}.
+    {ok, R} = rpc:call(Node, application, get_env, [mdns_server_lib, listener]),
+    R.
 
 call(Node, Msg) ->
     {IP, Port} = node_endpoing(Node),
@@ -167,8 +166,8 @@ vm_set(Node, VM, Attribute, Value) when
 
 vm_set(Node, VM, Attributes) when
       is_binary(VM) ->
-    call(Node, {vm, set, VM, [{K, V} || {K, V} <- Attributes,
-                                        is_binary(K)]}).
+    call(Node, {vm, set, VM, [{K, V} || {K, V} <- Attributes]}).
+
 vm_log(Node, VM, Log) ->
     call(Node, {vm, log, VM, Log}).
 
