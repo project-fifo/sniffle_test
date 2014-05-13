@@ -28,6 +28,21 @@
         ]).
 
 -export([
+         grouping_add/3,
+         grouping_delete/2,
+         grouping_get/2,
+         grouping_metadata_set/3,
+         grouping_metadata_set/4,
+         grouping_list/3,
+         grouping_list/2,
+         grouping_list/1,
+         grouping_add_element/3,
+         grouping_remove_element/3,
+         grouping_add_grouping/3,
+         grouping_remove_grouping/3
+        ]).
+
+-export([
          hypervisor_register/4,
          hypervisor_unregister/2,
          hypervisor_get/2,
@@ -105,6 +120,100 @@ call(Node, Msg) ->
     lager:debug("~s:~p -> ~p", [IP, Port, Res]),
     gen_tcp:close(Socket),
     Res.
+
+%%%===================================================================
+%%% Grouping Functions
+%%%===================================================================
+
+%%--------------------------------------------------------------------
+%% @doc Adds a new grouping to sniffle, the name is a plain
+%%   binary, the type is the atom cluster or stack
+%%   encapsulated in $ signs.
+%%   A UUID is returned.
+%% @end
+%%--------------------------------------------------------------------
+grouping_add(Node, Name, cluster) when
+      is_binary(Name)->
+    call(Node, {grouping, add, Name, cluster});
+grouping_add(Node, Name, none) when
+      is_binary(Name)->
+    call(Node, {grouping, add, Name, none});
+grouping_add(Node, Name, stack) when
+      is_binary(Name)->
+    call(Node, {grouping, add, Name, stack}).
+
+%%--------------------------------------------------------------------
+%% @doc Deletes a grouping script from the library
+%% @end
+%%--------------------------------------------------------------------
+grouping_delete(Node, ID) when
+      is_binary(ID)->
+    call(Node, {grouping, delete, ID}).
+
+%%--------------------------------------------------------------------
+%% @doc Reads a grouping script and returns the jsx object for it.
+%% @end
+%%--------------------------------------------------------------------
+grouping_get(Node, ID) when
+      is_binary(ID)->
+    call(Node, {grouping, get, ID}).
+
+%%--------------------------------------------------------------------
+%% @doc Lists the ID's of all scripts in the database.
+%% @end
+%%--------------------------------------------------------------------
+grouping_list(Node)->
+    call(Node, {grouping, list}).
+
+%%--------------------------------------------------------------------
+%% @doc Lists the ID's of all scripts in the database filtered by
+%%   the passed requirements.
+%% @end
+%%--------------------------------------------------------------------
+grouping_list(Node, Requirements)->
+    call(Node, {grouping, list, Requirements}).
+
+%%--------------------------------------------------------------------
+%% @doc Lists the ID's of all scripts in the database filtered by
+%%   the passed requirements.
+%% @end
+%%--------------------------------------------------------------------
+grouping_list(Node, Requirements, Full)->
+    call(Node, {grouping, list, Requirements, Full}).
+
+%%--------------------------------------------------------------------
+%% @doc Lists the ID's of all scripts in the database filtered by
+%%   the passed requirements.
+%% @end
+%%--------------------------------------------------------------------
+grouping_metadata_set(Node, Grouping, Attribute, Value) when
+      is_binary(Grouping) ->
+    call(Node, {grouping, metadata, set, Grouping, Attribute, Value}).
+
+%%--------------------------------------------------------------------
+%% @doc Sets options on a dtace script. The root key 'config' has a
+%%   special meaning here since it holds replacement variables.
+%% @end
+%%--------------------------------------------------------------------
+grouping_metadata_set(Node, Grouping, Attributes) when
+      is_binary(Grouping) ->
+    call(Node, {grouping, metadata, set, Grouping, Attributes}).
+
+grouping_add_element(Node, Grouping, Element)
+  when is_binary(Grouping), is_binary(Element) ->
+    call(Node, {grouping, element, add, Grouping, Element}).
+
+grouping_remove_element(Node, Grouping, Element)
+  when is_binary(Grouping), is_binary(Element) ->
+    call(Node, {grouping, element, remove, Grouping, Element}).
+
+grouping_add_grouping(Node, Grouping, Element)
+  when is_binary(Grouping), is_binary(Element) ->
+    call(Node, {grouping, grouping, add, Grouping, Element}).
+
+grouping_remove_grouping(Node, Grouping, Element)
+  when is_binary(Grouping), is_binary(Element) ->
+    call(Node, {grouping, grouping, remove, Grouping, Element}).
 
 %%%===================================================================
 %%% VM Functions
